@@ -112,17 +112,52 @@ new THREE.HemisphereLight(
 
 scene.add(hemisphereLight);
 
+const hemiTargetMarker =
+new THREE.Mesh(
+    new THREE.SphereGeometry(0.2, 16, 16),
+    new THREE.MeshBasicMaterial({
+        color: 0x87ceeb
+    })
+);
+
+hemiTargetMarker.position.set(
+    0,
+    0,
+    0
+);
+
+scene.add(hemiTargetMarker);
+
+//
+// Light Markers
+//
+
+function createLightMarker(color)
+{
+    const marker =
+    new THREE.Mesh(
+        new THREE.CylinderGeometry(
+            0.18,
+            0.18,
+            0.8,
+            16
+        ),
+        new THREE.MeshBasicMaterial({
+            color
+        })
+    );
+
+    marker.rotation.z = Math.PI / 2;
+
+    return marker;
+}
+
 //
 // Hemisphere Marker
 //
 
 const hemiMarker =
-new THREE.Mesh(
-    new THREE.SphereGeometry(0.35, 16, 16),
-    new THREE.MeshBasicMaterial({
-        color: 0x87ceeb
-    })
-);
+createLightMarker(0x87ceeb);
 
 hemiMarker.position.set(
     -8,
@@ -163,18 +198,27 @@ scene.add(spotLight.target);
 //
 
 const spotlightMarker =
-new THREE.Mesh(
-    new THREE.SphereGeometry(0.25, 16, 16),
-    new THREE.MeshBasicMaterial({
-        color: 0xffffff
-    })
-);
+createLightMarker(0xffffff);
 
 spotlightMarker.position.copy(
     spotLight.position
 );
 
 scene.add(spotlightMarker);
+
+const spotTargetMarker =
+new THREE.Mesh(
+    new THREE.SphereGeometry(0.2, 16, 16),
+    new THREE.MeshBasicMaterial({
+        color: 0xffffff
+    })
+);
+
+spotTargetMarker.position.copy(
+    spotLight.target.position
+);
+
+scene.add(spotTargetMarker);
 
 //
 // Rect Area Light
@@ -218,12 +262,7 @@ rectLight.add(rectHelper);
 //
 
 const rectMarker =
-new THREE.Mesh(
-    new THREE.SphereGeometry(0.25, 16, 16),
-    new THREE.MeshBasicMaterial({
-        color: 0x00ffff
-    })
-);
+createLightMarker(0x00ffff);
 
 rectMarker.position.copy(
     rectLight.position
@@ -378,16 +417,31 @@ const controls = {
 
     hemisphere: true,
     skyColor: "#87ceeb",
+    hemiIntensity: 2,
+    hemiX: -8,
+    hemiY: 8,
+    hemiZ: 0,
 
     spotlight: true,
     spotlightColor: "#ffffff",
+    spotIntensity: 50,
+    flashlightX: -5,
+    flashlightY: 7,
+    flashlightZ: 5,
+    targetX: 0,
+    targetY: 2,
+    targetZ: 0,
 
     rectLight: true,
     rectColor: "#00ffff",
+    rectIntensity: 10,
+    rectX: 5,
+    rectY: 3,
+    rectZ: 2.05,
 
-    flashlightX: -5,
-    flashlightY: 7,
-    flashlightZ: 5
+    cameraX: 0,
+    cameraY: 5,
+    cameraZ: 15
 };
 
 //
@@ -416,6 +470,60 @@ hemiFolder
 .onChange(value =>
 {
     hemisphereLight.color.set(value);
+});
+
+hemiFolder
+.add(
+    controls,
+    'hemiIntensity',
+    0,
+    10
+)
+.onChange(value =>
+{
+    hemisphereLight.intensity = value;
+});
+
+hemiFolder
+.add(
+    controls,
+    'hemiX',
+    -20,
+    20
+)
+.onChange(value =>
+{
+    hemisphereLight.position.x = value;
+    hemiMarker.position.x = value;
+    hemiLabel.position.x = value;
+});
+
+hemiFolder
+.add(
+    controls,
+    'hemiY',
+    0,
+    20
+)
+.onChange(value =>
+{
+    hemisphereLight.position.y = value;
+    hemiMarker.position.y = value;
+    hemiLabel.position.y = value + 1;
+});
+
+hemiFolder
+.add(
+    controls,
+    'hemiZ',
+    -20,
+    20
+)
+.onChange(value =>
+{
+    hemisphereLight.position.z = value;
+    hemiMarker.position.z = value;
+    hemiLabel.position.z = value;
 });
 
 hemiFolder.open();
@@ -453,6 +561,18 @@ spotFolder
 spotFolder
 .add(
     controls,
+    'spotIntensity',
+    0,
+    100
+)
+.onChange(value =>
+{
+    spotLight.intensity = value;
+});
+
+spotFolder
+.add(
+    controls,
     'flashlightX',
     -15,
     15
@@ -460,6 +580,8 @@ spotFolder
 .onChange(value =>
 {
     spotLight.position.x = value;
+    spotlightMarker.position.x = value;
+    spotLabel.position.x = value;
 });
 
 spotFolder
@@ -472,6 +594,8 @@ spotFolder
 .onChange(value =>
 {
     spotLight.position.y = value;
+    spotlightMarker.position.y = value;
+    spotLabel.position.y = value + 1;
 });
 
 spotFolder
@@ -484,9 +608,95 @@ spotFolder
 .onChange(value =>
 {
     spotLight.position.z = value;
+    spotlightMarker.position.z = value;
+    spotLabel.position.z = value;
+});
+
+spotFolder
+.add(
+    controls,
+    'targetX',
+    -20,
+    20
+)
+.onChange(value =>
+{
+    spotLight.target.position.x = value;
+    spotTargetMarker.position.x = value;
+});
+
+spotFolder
+.add(
+    controls,
+    'targetY',
+    -5,
+    12
+)
+.onChange(value =>
+{
+    spotLight.target.position.y = value;
+    spotTargetMarker.position.y = value;
+});
+
+spotFolder
+.add(
+    controls,
+    'targetZ',
+    -20,
+    20
+)
+.onChange(value =>
+{
+    spotLight.target.position.z = value;
+    spotTargetMarker.position.z = value;
 });
 
 spotFolder.open();
+
+//
+// Camera Controls
+//
+
+const cameraFolder =
+gui.addFolder('Camera');
+
+cameraFolder
+.add(
+    controls,
+    'cameraX',
+    -30,
+    30
+)
+.onChange(value =>
+{
+    camera.position.x = value;
+});
+
+cameraFolder
+.add(
+    controls,
+    'cameraY',
+    -10,
+    30
+)
+.onChange(value =>
+{
+    camera.position.y = value;
+});
+
+cameraFolder
+.add(
+    controls,
+    'cameraZ',
+    0,
+    40
+)
+.onChange(value =>
+{
+    camera.position.z = value;
+});
+
+cameraFolder.open();
 
 //
 // Rect Area Controls
@@ -518,7 +728,108 @@ rectFolder
     rectLight.color.set(value);
 });
 
+rectFolder
+.add(
+    controls,
+    'rectIntensity',
+    0,
+    30
+)
+.onChange(value =>
+{
+    rectLight.intensity = value;
+});
+
+rectFolder
+.add(
+    controls,
+    'rectX',
+    -15,
+    15
+)
+.onChange(value =>
+{
+    rectLight.position.x = value;
+    rectMarker.position.x = value;
+    rectLabel.position.x = value;
+});
+
+rectFolder
+.add(
+    controls,
+    'rectY',
+    0,
+    15
+)
+.onChange(value =>
+{
+    rectLight.position.y = value;
+    rectMarker.position.y = value;
+    rectLabel.position.y = value + 1;
+});
+
+rectFolder
+.add(
+    controls,
+    'rectZ',
+    -15,
+    15
+)
+.onChange(value =>
+{
+    rectLight.position.z = value;
+    rectMarker.position.z = value;
+    rectLabel.position.z = value;
+});
+
 rectFolder.open();
+
+const resetButton = {
+    reset: () =>
+    {
+        hemisphereLight.intensity = 2;
+        hemisphereLight.position.set(-8, 8, 0);
+        hemiMarker.position.set(-8, 8, 0);
+        hemiLabel.position.set(-8, 9, 0);
+        hemiMarker.material.color.set(0x87ceeb);
+        controls.hemiIntensity = 2;
+        controls.hemiX = -8;
+        controls.hemiY = 8;
+        controls.hemiZ = 0;
+
+        spotLight.intensity = 50;
+        spotLight.position.set(-5, 7, 5);
+        spotLight.target.position.set(0, 2, 0);
+        spotlightMarker.position.set(-5, 7, 5);
+        spotTargetMarker.position.set(0, 2, 0);
+        spotLabel.position.set(-5, 8, 5);
+        controls.spotIntensity = 50;
+        controls.flashlightX = -5;
+        controls.flashlightY = 7;
+        controls.flashlightZ = 5;
+        controls.targetX = 0;
+        controls.targetY = 2;
+        controls.targetZ = 0;
+
+        rectLight.intensity = 10;
+        rectLight.position.set(5, 3, 2.05);
+        rectMarker.position.set(5, 3, 2.05);
+        rectLabel.position.set(5, 4, 2);
+        controls.rectIntensity = 10;
+        controls.rectX = 5;
+        controls.rectY = 3;
+        controls.rectZ = 2.05;
+
+        camera.position.set(0, 5, 15);
+        controls.cameraX = 0;
+        controls.cameraY = 5;
+        controls.cameraZ = 15;
+
+        gui.updateDisplay();
+    }
+};
+
+gui.add(resetButton, 'reset').name('Reset Scene');
 
 //
 // Animation
@@ -550,11 +861,31 @@ function animate()
         hemisphereLight.color
     );
 
+    spotTargetMarker.position.copy(
+        spotLight.target.position
+    );
+
+    spotTargetMarker.material.color.copy(
+        spotLight.color
+    );
+
     spotLabel.position.copy(
         spotlightMarker.position
     );
 
     spotLabel.position.y += 1;
+
+    rectLabel.position.copy(
+        rectMarker.position
+    );
+
+    rectLabel.position.y += 1;
+
+    hemiLabel.position.copy(
+        hemiMarker.position
+    );
+
+    hemiLabel.position.y += 1;
 
     renderer.render(
         scene,

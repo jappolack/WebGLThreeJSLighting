@@ -9,16 +9,81 @@
         body {
             margin: 0;
             overflow: hidden;
+            font-family: Arial, sans-serif;
+            background: #111;
         }
 
         canvas {
             display: block;
         }
+
+        .error {
+            display: none;
+            position: fixed;
+            inset: 0;
+            place-items: center;
+            padding: 24px;
+            background: rgba(17, 17, 17, 0.95);
+            color: white;
+            text-align: center;
+            z-index: 9999;
+        }
+
+        .error.visible {
+            display: grid;
+        }
+
+        .error-box {
+            max-width: 560px;
+            background: #1c1c1c;
+            border: 1px solid #444;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 1.5rem;
+        }
+
+        code {
+            background: #2a2a2a;
+            padding: 4px 8px;
+            border-radius: 6px;
+            white-space: nowrap;
+        }
     </style>
 </head>
 <body>
 
-    <script type="module" src="threeljslights.js"></script>
+<div id="fileWarning" class="error">
+    <div class="error-box">
+        <h1>Local server required</h1>
+        <p>This demo uses ES modules and CDN imports, so it must be served over HTTP instead of opened directly as a file.</p>
+        <p>Run:</p>
+        <p><code>cd /workspaces/WebGLThreeJSLighting && python3 -m http.server 8000</code></p>
+        <p>Then open:</p>
+        <p><code>http://localhost:8000/threejslights.html</code></p>
+    </div>
+</div>
+
+<script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+</script>
+
+<script>
+    if (location.protocol === 'file:') {
+        document.getElementById('fileWarning').classList.add('visible');
+    }
+</script>
+
+<script type="module" src="threeljslights.js"></script>
 
 </body>
 </html>
